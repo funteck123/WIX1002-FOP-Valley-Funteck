@@ -1,0 +1,232 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class Monster {
+    public String name;
+    public int healthPoints;
+    public int manaPoints;
+    public int physicalAttack;
+    public int magicalAttack;
+    public int physicalDefense;
+    public int magicalDefense;
+    public String description;
+    List<Ability> abilityList;
+
+    public Monster(String name, int healthPoints, int manaPoints, int physicalAttack,
+                   int magicalAttack, int physicalDefense, int magicalDefense, String description) {
+        this.name = name;
+        this.healthPoints = healthPoints;
+        this.manaPoints = manaPoints;
+        this.physicalAttack = physicalAttack;
+        this.magicalAttack = magicalAttack;
+        this.physicalDefense = physicalDefense;
+        this.magicalDefense = magicalDefense;
+        this.description = description;
+    }
+
+    public class TextFileReader {
+        public String[] name = new String[5];
+        public int[] healthPoints = new int[5];
+        public int[] manaPoints = new int[5];
+        public int[] physicalAttack = new int[5];
+        public int[] magicalAttack = new int[5];
+        public int[] physicalDefense = new int[5];
+        public int[] magicalDefense = new int[5];
+        public String[] description = new String[5];
+
+        private int currentIndex = 0;
+
+      public void readTextFile(String filePath) {
+    try {
+        File file = new File(filePath);
+        Scanner scanner = new Scanner(file);
+
+        int index = 0;
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+
+            if (line.startsWith("**")) {
+                name[index] = line.substring(3, line.length() - 2); // Extract name from line
+            } else if (line.contains(":")) {
+                String[] parts = line.split(":");
+                String key = parts[0].trim();
+                String value = parts[1].trim();
+
+                switch (key) {
+                    case "- HP":
+                        healthPoints[index] = Integer.parseInt(value);
+                        break;
+                    case "- MP":
+                        manaPoints[index] = Integer.parseInt(value);
+                        break;
+                    case "- Physical Attack":
+                        physicalAttack[index] = Integer.parseInt(value);
+                        break;
+                    case "- Magical Attack":
+                        magicalAttack[index] = Integer.parseInt(value);
+                        break;
+                    case "- Physical Defense":
+                        physicalDefense[index] = Integer.parseInt(value);
+                        break;
+                    case "- Magical Defense":
+                        magicalDefense[index] = Integer.parseInt(value);
+                        break;
+                    case "- Description":
+                        descriptionBuilder.append(value).append("\n");
+                        break;
+                    default:
+                        break;
+                }
+            } else if (line.isEmpty()) {
+                // Store the accumulated description
+                description[index] = descriptionBuilder.toString().trim();
+                descriptionBuilder.setLength(0); // Clear StringBuilder for next entry
+                index++; // Move to the next index for the next entry
+            }
+
+        }
+        
+        
+
+        // Store the last accumulated description if any
+        description[index] = descriptionBuilder.toString().trim();
+
+        scanner.close();
+        setAbilities();
+    } catch (FileNotFoundException e) {
+        e.printStackTrace();
+    }
+
+        public void setAbilities() {
+            for (int i = 0; i < description.length; i++) {
+                String[] words = description[i].split("\\s+"); // Split description into words
+
+                // Loop through the words to find abilities
+                for (String word : words) {
+                    if (word.startsWith("\"") && word.endsWith("\"")) {
+                        String ability = word.substring(1, word.length() - 1); // Remove quotes
+                        abilities.get(i).add(new Ability(ability, "")); // Add ability to the list
+                    }
+                }
+            }
+        
+    
+}
+
+
+        public Monster createMonster(int index) {
+            if (index >= 0 && index < 5) {
+                return new Monster(
+                        name[index], healthPoints[index], manaPoints[index],
+                        physicalAttack[index], magicalAttack[index], physicalDefense[index],
+                        magicalDefense[index], description[index]
+                );
+            } else {
+                return null; // Return null for invalid index
+            }
+        }
+
+        public Monster[] createAllMonsters() {
+            Monster[] monsters = new Monster[5];
+
+            for (int i = 0; i < 5; i++) {
+                monsters[i] = createMonster(i);
+            }
+
+            return monsters;
+        }
+    }
+
+   public class AsciiArtMonsters {
+    public static final String goblinArt =
+            "           ,      ,\n" +
+            "          /(.-\"-.)\\\n" +
+            "      |\\  \\/      \\/  /|\n" +
+            "      | \\ / =.  .= \\ / |\n" +
+            "      \\( \\   o\\/o   / )/\n" +
+            "       \\_, '-/  \\-' ,_/\n" +
+            "         /   \\__/   \\\n" +
+            "         \\ \\__/\__/ /\n" +
+            "       ___\\ \\|--|/ /___\n" +
+            "     /`    \\      /    `\\\n" +
+            "    /       '----'       \\\n";
+
+    public static final String skeletonArt =
+            "    .-.  \n" +
+            "   (o.o) \n" +
+            "    |=|  \n" +
+            "   __|__ \n" +
+            " //.=|=.\\\\\n" +
+            "// .=|=. \\\\\n" +
+            "\  .=|=. //\n" +
+            "  \(_=_)// \n" +
+            "  (:| |:) \n" +
+            "   || ||  \n" +
+            "   () ()  \n" +
+            "   || ||  \n" +
+            "   || ||  \n" +
+            "l\n" +
+            "==' '==  \n";
+
+    public static final String witchArt =
+            "                    /\\\n" +
+            "                    _/__\\_\n" +
+            "                    /( o\\\n" +
+            "               /|  // \\-'\n" +
+            "          __  ( o,    /\\\n" +
+            "            ) / |    / _\\\n" +
+            "     >>>>==(_(__u---(___ )-----\n" +
+            "                       //\n" +
+            "                      /__)ns\n";
+
+    public static final String orcArt =
+            "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+            "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+            "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣶⣧⣄⣉⣉⣠⣼⣶⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+            "⠀⠀⠀⠀⠀⠀⠀⣀⣤⣶⣿⣿⣿⣿⡿⣿⣿⣿⣿⢿⣿⣿⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀\n" +
+            "⠀⠀⠀⠀⠀⠀⠀⣼⣿⣿⣿⣿⡿⣿⣿⣿⣿⢿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀\n" +
+            "⠀⢲⣶⣤⣄⡀⢀⣿⣄⠙⠿⣿⣦⣤⡿⢿⣤⣴⣿⠿⠋⣠⣿⠀⢀⣠⣤⣶⡖⠀\n" +
+            "⠀⠀⠙⣿⠛⠇⢸⣿⣿⡟⠀⡄⢉⠉⢀⡀⠉⡉⢠⠀⢻⣿⣿⡇⠸⠛⣿⠋⠀⠀\n" +
+            "⠀⠀⠀⠘⣷⠀⢸⡏⠻⣿⣤⣤⠂⣠⣿⣿⣄⠑⣤⣤⣿⠟⢹⡇⠀⣾⠃⠀⠀⠀\n" +
+            "⠀⠀⠀⠀⠘⠀⢸⣿⡀⢀⠙⠻⢦⣌⣉⣉⣡⡴⠟⠋⡀⢀⣿⡇⠀⠃⠀⠀⠀⠀\n" +
+            "⠀⠀⠀⠀⠀⠀⢸⣿⣧⠈⠛⠂⠀⠉⠛⠛⠉⠀⠐⠛⠁⣼⣿⡇⠀⠀⠀⠀⠀⠀\n" +
+            "⠀⠀⠀⠀⠀⠀⠸⣏⠀⣤⡶⠖⠛⠋⠉⠉⠙⠛⠲⢶⣤⠀⣹⠇⠀⠀⠀⠀⠀⠀\n" +
+            "⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⣶⣿⣿⣿⣿⣿⣿⣶⣿⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+            "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠛⠛⠛⠛⠉⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀\n";
+
+    public static final String harpyArt =
+            "   ,                                      ,\n" +
+            "        |\\                                      /|\n" +
+            "     ,   \\'._ ,                           ,  _.'/   ,\n" +
+            "     |\\  {'. '-`\\,      ,-._**_.-,      ,/`-' .'}  /|\n" +
+            "      \\`'-'-.  '.`\\      \\*____*/      /`.'  .-'-'`/\n" +
+            "    ,'-'-._  '.  ) )     /`    `\\     ( (  .'  _.-'-',\n" +
+            "    |\\'- _ '.   , /     /  /\"\"\\  \\     \\ ,  .'  _ -'/|\n" +
+            "     \\'-.   .  ; (      \\_|^  ^|_/      ) ;   .  .-'/\n" +
+            "      `'--, . ;  {`-.       \\__/      .-'}  ; . ,--'`\n" +
+            "      '--`_. ;  { ^  \\    _|  |_    /  ^ }  ; ._`--'\n" +
+            "      `,_.--  ;  { ^  `-'`      `'-`  ^ }  ;  --._,`\n" +
+            "        ,_.-    ; {^                ^} ;    -._,\n" +
+            "         ,_.-`), /\\{^,/\         //\\,^}/\\ ,(`-._,\n" +
+            "           _.'.-` /.'   \\        /   `.\\ `-.'_.\n" +
+            "          `  _.' `       \\      /       ` '._   `\n" +
+            "                        .-'.  .'-.\n" +
+            "                      .'    `` ^  '.\n" +
+            "                     /  ^ ^   ^  ^  \\\n" +
+            "                     | ^    ^   ^   |\n" +
+            "                    /^   ^/    \\  ^  \\\n" +
+            "                    \\,_^_/    ^ \\_,^./\n" +
+            "                     /=/  \\^   /  \\=\\\n" +
+            "                 __ /=/_   | ^|   _\\=\\ __\n" +
+            "               <(=,'=(==,) |  | (,==)=',=)>\n" +
+            "                 /_/|_\\    /  \\    /_|_\\ \\\n" +
+            "                 `V (=|  .'    '.  |=) V`\n" +
+            "                     V  / _/  \\_ \\  V\n" +
+            "                       `\"` \\  / `\"`\n" +
+            "                            \\(\n";
+}
+
+}
+}
