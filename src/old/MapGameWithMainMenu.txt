@@ -1,0 +1,174 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
+import javax.imageio.ImageIO;
+
+public class MapGameWithMainMenu extends JFrame {
+    private static final int PLAYABLE_MAP_SIZE = 40; // Playable area size
+    private static final int BORDER_SIZE = 1; // Border size in pixels
+    private static final int MAP_SIZE = PLAYABLE_MAP_SIZE + 2 * BORDER_SIZE; // Total map size including borders
+    private static final int CELL_SIZE = 20;
+    private int playerX = BORDER_SIZE;
+    private int playerY = BORDER_SIZE;
+
+    private BufferedImage playerImage;
+    private boolean[][] obstacleMap;
+
+    private GamePanel gamePanel;
+
+    public MapGameWithMainMenu() {
+        setTitle("Map Game with Main Menu");
+        setSize(840, 840); // Adjusted size to accommodate the larger map with borders
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        MainMenu mainMenu = new MainMenu();
+        add(mainMenu);
+
+        setFocusable(true);
+    }
+
+    private void startGame() {
+        loadPlayerImage("https://opengameart.org/sites/default/files/player_19.png");
+        generateObstacleMap();
+
+        gamePanel = new GamePanel();
+        add(gamePanel);
+        gamePanel.setVisible(true);
+        gamePanel.setFocusable(true);
+        gamePanel.requestFocusInWindow();
+
+        gamePanel.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                handleKeyPress(e.getKeyCode());
+                gamePanel.repaint();
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+        });
+    }
+
+    private void loadPlayerImage(String imageUrl) {
+        try {
+            //URL imageURL = new URL(imageUrl);
+            playerImage = ImageIO.read(imageURL);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void generateObstacleMap() {
+        obstacleMap = new boolean[MAP_SIZE][MAP_SIZE];
+        for (int row = BORDER_SIZE; row < PLAYABLE_MAP_SIZE + BORDER_SIZE; row++) {
+            for (int col = BORDER_SIZE; col < PLAYABLE_MAP_SIZE + BORDER_SIZE; col++) {
+                obstacleMap[row][col] = Math.random() < 0.1; // 10% chance to place an obstacle
+            }
+        }
+    }
+
+    private void handleKeyPress(int keyCode) {
+        switch (keyCode) {
+            case KeyEvent.VK_W:
+                if (playerY > BORDER_SIZE && !obstacleMap[playerY - 1][playerX])
+                    playerY--;
+                break;
+            case KeyEvent.VK_A:
+                if (playerX > BORDER_SIZE && !obstacleMap[playerY][playerX - 1])
+                    playerX--;
+                break;
+            case KeyEvent.VK_S:
+                if (playerY < MAP_SIZE - BORDER_SIZE - 1 && !obstacleMap[playerY + 1][playerX])
+                    playerY++;
+                break;
+            case KeyEvent.VK_D:
+                if (playerX < MAP_SIZE - BORDER_SIZE - 1 && !obstacleMap[playerY][playerX + 1])
+                    playerX++;
+                break;
+        }
+    }
+
+    private class GamePanel extends JPanel {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            drawMap(g);
+            drawPlayer(g);
+        }
+
+        private void drawMap(Graphics g) {
+            for (int row = 0; row < MAP_SIZE; row++) {
+                for (int col = 0; col < MAP_SIZE; col++) {
+                    if (obstacleMap[row][col]) {
+                        g.setColor(Color.BLACK);
+                        g.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    }
+                }
+            }
+
+            // Draw the borders
+            g.setColor(Color.GRAY);
+            for (int i = 0; i < MAP_SIZE; i++) {
+                g.fillRect(i * CELL_SIZE, 0, BORDER_SIZE * CELL_SIZE, CELL_SIZE); // Left border
+                g.fillRect(i * CELL_SIZE, (MAP_SIZE - BORDER_SIZE) * CELL_SIZE, BORDER_SIZE * CELL_SIZE, CELL_SIZE); // Right border
+                g.fillRect(0, i * CELL_SIZE, CELL_SIZE, BORDER_SIZE * CELL_SIZE); // Top border
+                g.fillRect((MAP_SIZE - BORDER_SIZE) * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, BORDER_SIZE * CELL_SIZE); // Bottom border
+            }
+        }
+
+        private void drawPlayer(Graphics g) {
+            if (playerImage != null) {
+                g.drawImage(playerImage, playerX * CELL_SIZE, playerY * CELL_SIZE, CELL_SIZE, CELL_SIZE, this);
+            }
+        }
+    }
+
+    private class MainMenu extends JPanel {
+        public MainMenu() {
+            setLayout(new GridLayout(5, 1));
+
+            JButton startButton = new JButton("Start Game");
+            startButton.addActionListener(e -> {
+                remove(MainMenu.this);
+                startGame();
+                revalidate();
+                repaint();
+            });
+            add(startButton);
+
+            JButton settingsButton = new JButton("Settings");
+            settingsButton.addActionListener(e -> JOptionPane.showMessageDialog(MainMenu.this, "Settings clicked."));
+            add(settingsButton);
+
+            JButton loadGameButton = new JButton("Load Game");
+            loadGameButton.addActionListener(e -> JOptionPane.showMessageDialog(MainMenu.this, "Load Game clicked."));
+            add(loadGameButton);
+
+            JButton instructionsButton = new JButton("Instructions");
+            instructionsButton
+                    .addActionListener(e -> JOptionPane.showMessageDialog(MainMenu.this, "Instructions clicked."));
+            add(instructionsButton);
+
+            JButton exitButton = new JButton("Exit");
+            exitButton.addActionListener(e -> System.exit(0));
+            add(exitButton);
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            MapGameWithMainMenu mapGameWithMainMenu = new MapGameWithMainMenu();
+            mapGameWithMainMenu.setVisible(true);
+        });
+    }
+}
